@@ -37,6 +37,12 @@ class MockAudioContext {
     return {
       connect: jest.fn(),
       disconnect: jest.fn(),
+      frequencyBinCount: 2048,
+      getByteFrequencyData: jest.fn(array => {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = Math.floor(Math.random() * 256);
+        }
+      }),
     };
   }
 
@@ -52,6 +58,7 @@ class MockAudioContext {
     return {
       connect: jest.fn(),
       disconnect: jest.fn(),
+      onaudioprocess: null,
     };
   }
 
