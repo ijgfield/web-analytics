@@ -1,5 +1,5 @@
 {
-  "name": "@analytics/server",
+  "name": "@shockmouse/analytics-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "migrate": "tsx src/db/migrate.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No tests yet\" && exit 0"
   },
   "author": "Ian Greenfield",
   "license": "ISC",

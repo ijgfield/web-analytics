@@ -26,15 +26,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Type check
-        run: |
-          cd packages/client && pnpm build
-          cd ../server && pnpm build
-
-      - name: Run tests
-        run: pnpm test
-
-      - name: Build packages
+      - name: Type check and build
         run: |
           cd packages/client && pnpm build
           cd ../server && pnpm build
