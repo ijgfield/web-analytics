@@ -6,6 +6,13 @@ node_modules
 dist
 .next
 build
+*.js
+*.js.map
+*.d.ts
+
+# Keep source TypeScript files
+!*.ts
+!*.tsx
 
 # Environment variables
 .env

@@ -1,22 +1,38 @@
-import { Config, EventPayload, EventUserProperties } from './types';
+import {
+  Config,
+  EventPayload,
+  EventUserProperties,
+  DEFAULT_CONFIG,
+} from './types';
 import { RequestsManager } from './utils/requests';
+import { Fingerprinter, DeviceFingerprint } from './utils/fingerprint';
 
 export class Analytics {
   private config: Config;
   private requestManager: RequestsManager;
+  private fingerprinter: Fingerprinter;
+  private deviceFingerprint?: DeviceFingerprint;
   // private trackedElements: Set<Element> = new Set();
 
-  constructor(config: Config) {
+  constructor(config: Pick<Config, 'projectId'> & Partial<Config>) {
     this.config = {
-      autoTrack: true,
-      trackPageViews: true,
-      trackClicks: true,
-      trackForms: true,
-      endpoint: 'https://api.youranalytics.com',
-      debug: false,
+      ...DEFAULT_CONFIG,
       ...config,
     };
-    this.requestManager = new RequestsManager(this.config.endpoint!);
+
+    this.requestManager = new RequestsManager({
+      endpoint: this.config.endpoint!,
+      batchSize: this.config.batchSize,
+      batchTimeout: this.config.batchTimeout,
+      samplingRate: this.config.samplingRate,
+      retryAttempts: this.config.retryAttempts,
+      retryBackoff: this.config.retryBackoff,
+    });
+
+    this.fingerprinter = new Fingerprinter({
+      privacyMode: this.config.privacyMode,
+    });
+
     this.initialize();
 
     if (this.config.autoTrack) {
@@ -24,10 +40,13 @@ export class Analytics {
     }
   }
 
-  private initialize(): void {
-    // Initialization logic
+  private async initialize(): Promise<void> {
+    // Get device fingerprint on initialization
+    this.deviceFingerprint = await this.fingerprinter.getFingerprint();
+
     if (this.config.debug) {
       console.log('Analytics initialized with config:', this.config);
+      console.log('Device fingerprint:', this.deviceFingerprint);
     }
   }
 
@@ -261,18 +280,44 @@ export class Analytics {
   ) {
     const sessionId = this.getOrCreateSessionId();
 
+    // Ensure we have a fingerprint
+    if (!this.deviceFingerprint) {
+      this.deviceFingerprint = await this.fingerprinter.getFingerprint();
+    }
+
     const event = {
       project_id: this.config.projectId,
       type,
       timestamp: Date.now(),
       session_id: sessionId,
+      device_id: this.deviceFingerprint.deviceId,
       payload: { ...payload },
       user_properties: {
         ...user_properties,
       },
+      client_metadata: {
+        user_agent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        screen_resolution: `${window.screen.width}x${window.screen.height}`,
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        fingerprint_confidence: this.deviceFingerprint.confidence,
+      },
     };
 
-    console.log(event);
+    if (this.config.debug) {
+      console.log('Tracking event:', event);
+    }
+
     this.requestManager.send(event);
+  }
+
+  // Public method for testing fingerprinting
+  public async getDeviceFingerprint(): Promise<DeviceFingerprint> {
+    if (!this.deviceFingerprint) {
+      this.deviceFingerprint = await this.fingerprinter.getFingerprint();
+    }
+    return this.deviceFingerprint;
   }
 }

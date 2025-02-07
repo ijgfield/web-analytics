@@ -1,13 +1,28 @@
 {
-  "name": "@analytics/client",
+  "name": "@shockmouse/analytics",
   "version": "1.0.0",
-  "description": "",
+  "description": "Privacy-focused, enterprise-grade analytics solution with sophisticated device fingerprinting",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublishOnly": "pnpm build"
   },
+  "keywords": [
+    "analytics",
+    "privacy",
+    "tracking",
+    "fingerprinting",
+    "events"
+  ],
   "author": "Ian Greenfield",
-  "license": "ISC"
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/analytics"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
