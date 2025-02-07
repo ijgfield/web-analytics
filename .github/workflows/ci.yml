@@ -30,3 +30,8 @@ jobs:
         run: |
           cd packages/client && pnpm build
           cd ../server && pnpm build
+
+      - name: Run tests
+        run: |
+          cd packages/client && pnpm test
+          cd ../server && pnpm test

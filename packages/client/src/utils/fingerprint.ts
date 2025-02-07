@@ -84,8 +84,13 @@ export class Fingerprinter {
 
   private async getAudioFingerprint(): Promise<string> {
     try {
-      const audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+      const AudioContextClass =
+        window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) {
+        return 'audio-unavailable';
+      }
+
+      const audioContext = new AudioContextClass();
       const oscillator = audioContext.createOscillator();
       const analyser = audioContext.createAnalyser();
       const gainNode = audioContext.createGain();
@@ -100,35 +105,46 @@ export class Fingerprinter {
 
       oscillator.start(0);
 
-      const audioTimeoutPromise = new Promise<string>(resolve => {
-        const timeoutId = setTimeout(() => {
-          try {
-            oscillator.stop();
-            audioContext.close();
-          } catch (e) {
-            // Ignore cleanup errors
+      let isCleanedUp = false;
+      const cleanup = async () => {
+        if (isCleanedUp) return;
+        isCleanedUp = true;
+        try {
+          oscillator.stop();
+          // Disconnect nodes to prevent memory leaks
+          oscillator.disconnect();
+          analyser.disconnect();
+          scriptProcessor.disconnect();
+          gainNode.disconnect();
+          // Only close if context is not already closed
+          if (audioContext.state !== 'closed') {
+            await audioContext.close();
           }
+        } catch (e) {
+          console.debug('Audio cleanup error:', e);
+        }
+      };
+
+      const audioTimeoutPromise = new Promise<string>(resolve => {
+        const timeoutId = setTimeout(async () => {
+          await cleanup();
           resolve('audio-disabled');
         }, 1000);
 
-        scriptProcessor.onaudioprocess = e => {
+        scriptProcessor.onaudioprocess = async e => {
           const inputBuffer = e.inputBuffer.getChannelData(0);
           const buffer = Array.from(inputBuffer).slice(0, 1000);
           const hash = buffer.reduce((acc, val) => acc + val, 0);
 
           clearTimeout(timeoutId);
-          try {
-            oscillator.stop();
-            audioContext.close();
-          } catch (e) {
-            // Ignore cleanup errors
-          }
+          await cleanup();
           resolve(hash.toString());
         };
       });
 
       return await audioTimeoutPromise;
     } catch (e) {
+      console.debug('Audio fingerprint error:', e);
       return 'audio-unavailable';
     }
   }
@@ -241,6 +257,7 @@ export class Fingerprinter {
       'hardwareConcurrency',
       'deviceMemory',
       'userAgent',
+      'audio',
     ];
 
     let allowedComponents: string[];
