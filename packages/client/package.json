@@ -1,6 +1,6 @@
 {
   "name": "@shockmouse/analytics",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Privacy-focused, enterprise-grade analytics solution with sophisticated device fingerprinting",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,11 +28,12 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.1",
-    "canvas": "^3.1.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.24",
+    "canvas": "^2.11.2",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "ts-jest": "^29.2.5"
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
   }
 }
