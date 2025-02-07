@@ -1,6 +1,6 @@
 {
   "name": "@shockmouse/analytics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Privacy-focused, enterprise-grade analytics solution with sophisticated device fingerprinting",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/analytics"
+    "url": "https://github.com/ijgfield/web-analytics"
   },
   "publishConfig": {
     "access": "public"
