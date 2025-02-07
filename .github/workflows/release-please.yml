@@ -8,6 +8,8 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
+  discussions: write
 
 jobs:
   release-please:
@@ -20,6 +22,7 @@ jobs:
           path: packages/client
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
       # Publish to npm if a new release was created
       - uses: actions/checkout@v4
