@@ -13,14 +13,13 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           release-type: node
-          package-name: '@shockmouse/analytics'
-          monorepo-tags: true
           path: packages/client
-          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"chore","section":"Miscellaneous","hidden":false},{"type":"docs","section":"Documentation","hidden":false}]'
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
 
       # Publish to npm if a new release was created
       - uses: actions/checkout@v4
